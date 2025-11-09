@@ -63,10 +63,7 @@ def generate_story(name, desc, colors):
     desc = desc.strip().capitalize() if desc else "A fascinating bird with unique habits."
     tmpl = random.choice(TEMPLATES) #random template
     return tmpl.format(name=name, color_phrase=color_phrase, desc=desc)
-
-# ─────────────────────────────────────────────────────────────────────────────
-# TTS
-# ─────────────────────────────────────────────────────────────────────────────
+# Text To Speech
 def natural_tts(text, path):
     try:
         from gtts import gTTS
@@ -75,10 +72,7 @@ def natural_tts(text, path):
         return path
     except Exception as e:
         raise RuntimeError(f"TTS failed: {e}")
-
-# ─────────────────────────────────────────────────────────────────────────────
-# KEN BURNS
-# ─────────────────────────────────────────────────────────────────────────────
+# Ken Burns
 def ken_burns_clip(img_path, duration=4.0):
     clip = ImageClip(img_path).set_duration(duration)
     w, h = clip.size
@@ -89,10 +83,7 @@ def ken_burns_clip(img_path, duration=4.0):
         "center"
     ))
     return clip.fadein(0.3).fadeout(0.3)
-
-# ─────────────────────────────────────────────────────────────────────────────
-# VIDEO
-# ─────────────────────────────────────────────────────────────────────────────
+# Video properties
 def create_video(image_paths, audio_path, output_path):
     audio = AudioFileClip(audio_path)
     audio = audio_fadein(audio, 0.6).audio_fadeout(1.2)
@@ -111,15 +102,8 @@ def create_video(image_paths, audio_path, output_path):
     video = video.resize(height=720)
     video.write_videofile(output_path, fps=24, codec="libx264", audio_codec="aac", preset="medium")
     return output_path
-
-# ─────────────────────────────────────────────────────────────────────────────
-# MAIN UI
-# ─────────────────────────────────────────────────────────────────────────────
-# Display logo (centered and resized to one-quarter of original dimensions)
 def _set_background_glass(img_path: str = "ugb1.png"):
-    """Set a full-page background using the given image and add a translucent glass
-    style to the main Streamlit block container so content appears on a frosted panel.
-    The image is embedded as a data URI to improve compatibility when deployed.
+    """background ub1.png photo
     """
     try:
         if not os.path.exists(img_path):
@@ -130,7 +114,6 @@ def _set_background_glass(img_path: str = "ugb1.png"):
         css = f"""
         <style>
         .stApp {{
-            /* Apply a white overlay so the image appears very subtle, requiring focus to notice */
             background-image: linear-gradient(rgba(255,255,255,0.92), rgba(255,255,255,0.92)), url("data:image/png;base64,{b64}");
             background-size: cover;
             background-position: center;
@@ -147,22 +130,21 @@ def _set_background_glass(img_path: str = "ugb1.png"):
         """
         st.markdown(css, unsafe_allow_html=True)
     except Exception:
-        # If embedding fails, don't break the app
         pass
 
-# Apply the background/glass style
+# background ub1.png
 _set_background_glass("ugb1.png")
 
-# Model loading and prediction functions
+# Model loading and prediction
 @st.cache_resource
 def load_model():
     """Load the ResNet34 model with trained weights"""
     try:
         model = models.resnet34(weights=None)
-        num_classes = 220  # Based on label_map.json having 30 classes
+        num_classes = 220  # 220 classes
         model.fc = nn.Linear(model.fc.in_features, num_classes)
         
-        # Load weights
+        # weights
         if os.path.exists("resnet34_weights.pth"):
             model.load_state_dict(torch.load("resnet34_weights.pth", map_location=torch.device('cpu')))
             model.eval()
@@ -181,7 +163,6 @@ def load_label_map():
         if os.path.exists("label_map.json"):
             with open("label_map.json", "r") as f:
                 label_map = json.load(f)
-            # Reverse mapping: index -> bird name
             idx_to_label = {v: k for k, v in label_map.items()}
             return idx_to_label
         else:
@@ -198,8 +179,6 @@ def preprocess_image(image):
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
-    
-    # Convert to RGB if needed
     if image.mode != 'RGB':
         image = image.convert('RGB')
     
@@ -214,8 +193,8 @@ def predict_species(model, label_map, image):
         
         # Make prediction
         with torch.no_grad():
-            outputs = model(image_tensor)  # Shape: (batch_size, num_classes) = (1, 30)
-            probabilities = torch.nn.functional.softmax(outputs, dim=1)  # Apply softmax along class dimension
+            outputs = model(image_tensor) 
+            probabilities = torch.nn.functional.softmax(outputs, dim=1)
             
         # Get top prediction (dim=1 is the class dimension)
         top_prob, top_index = torch.max(probabilities, dim=1)
@@ -392,12 +371,9 @@ html, body, .stApp { font-family: Inter, system-ui, -apple-system, Segoe UI, Rob
 try:
     _logo = Image.open("ugb1.png")
     _w, _h = _logo.size
-    # Prevent zero or negative sizes
-    _new_w = max(1, _w // 2)  # Changed from 4 to 2 to make image twice as large
+    _new_w = max(1, _w // 2) 
     _new_h = max(1, _h // 2)
     _logo_small = _logo.resize((_new_w, _new_h), Image.LANCZOS)
-
-    # Hero header with logo and gradient title
     with st.container():
         logo_col, text_col = st.columns([1, 3])
         with logo_col:
@@ -414,14 +390,10 @@ try:
             )
         st.markdown("</div>", unsafe_allow_html=True)
 except Exception:
-    # If logo not found or cannot be opened, skip silently
     pass
 
-# Remove old italic banner to reduce clutter and rely on hero subtitle
-
-# Main content container with modern layout
+# Main content container
 with st.container():
-    # Section prompt
     st.markdown(
         """
         <div style='text-align:center; margin: .5rem 0 1rem;'>
@@ -440,7 +412,6 @@ with st.container():
         st.markdown("<div class='hint'>PNG or JPEG. Clear, close-up shots improve results.</div>", unsafe_allow_html=True)
         uploaded_file = st.file_uploader("Select a bird image", type=['png', 'jpg', 'jpeg'], key="uploader_file")
         if uploaded_file is not None:
-            # Clear previous result when new image is uploaded
             if 'upload_result' in st.session_state:
                 del st.session_state.upload_result
             
@@ -453,7 +424,6 @@ with st.container():
                         result = predict_species(model, label_map, image)
                     
                     if result:
-                        # Store result in session state
                         st.session_state.upload_result = result
                         st.session_state.upload_image = image
                     else:
@@ -483,28 +453,18 @@ with st.container():
                         with st.spinner("Generating..."):
                             data = bird_db[bird_name]
                             story = generate_story(bird_name, data["desc"], data["colors"])
-
-                # Temp dir
                             tmp = tempfile.mkdtemp()
                             img_paths = []
-
-                # Decode images
                             for i, b64 in enumerate(data["images_b64"]):
                                 img_data = base64.b64decode(b64)
                                 img = Image.open(BytesIO(img_data))
                                 p = os.path.join(tmp, f"img_{i}.jpg")
                                 img.save(p, "JPEG")
                                 img_paths.append(p)
-
-                # TTS
                             audio_path = os.path.join(tmp, "voice.mp3")
                             natural_tts(story, audio_path)
-
-                # Video
                             out_path = os.path.join(tmp, f"{bird_name.replace(' ', '_')}.mp4")
                             create_video(img_paths, audio_path, out_path)
-
-                # Show
                             st.video(out_path)
                             with open(out_path, "rb") as f:
                                 st.download_button("Download Video", f, f"{bird_name}.mp4", "video/mp4")
@@ -553,7 +513,6 @@ with st.container():
         if st.session_state.camera_active:
             camera_photo = st.camera_input("Take a photo", key="camera_input")
             if camera_photo is not None:
-                # Clear previous result when new photo is captured
                 if 'camera_result' in st.session_state:
                     del st.session_state.camera_result
                 
@@ -566,7 +525,6 @@ with st.container():
                             result = predict_species(model, label_map, image)
                         
                         if result:
-                            # Store result in session state
                             st.session_state.camera_result = result
                             st.session_state.camera_image = image
                         else:
@@ -574,7 +532,6 @@ with st.container():
                     else:
                         st.error("Model or label map not loaded. Please check if the files exist.")
                 
-                # Display result if available
                 if 'camera_result' in st.session_state and st.session_state.camera_result:
                     result = st.session_state.camera_result
                     st.markdown("<div class='result-title'>🦅 Identification Result</div>", unsafe_allow_html=True)
@@ -596,28 +553,18 @@ with st.container():
                             with st.spinner("Generating..."):
                                 data = bird_db[bird_name]
                                 story = generate_story(bird_name, data["desc"], data["colors"])
-
-                # Temp dir
                                 tmp = tempfile.mkdtemp()
                                 img_paths = []
-
-                # Decode images
                                 for i, b64 in enumerate(data["images_b64"]):
                                     img_data = base64.b64decode(b64)
                                     img = Image.open(BytesIO(img_data))
                                     p = os.path.join(tmp, f"img_{i}.jpg")
                                     img.save(p, "JPEG")
                                     img_paths.append(p)
-
-                # TTS
                                 audio_path = os.path.join(tmp, "voice.mp3")
                                 natural_tts(story, audio_path)
-
-                # Video
                                 out_path = os.path.join(tmp, f"{bird_name.replace(' ', '_')}.mp4")
                                 create_video(img_paths, audio_path, out_path)
-
-                # Show
                                 st.video(out_path)
                                 with open(out_path, "rb") as f:
                                     st.download_button("Download Video", f, f"{bird_name}.mp4", "video/mp4")
@@ -671,7 +618,7 @@ with st.container():
             Bird Scan — Identify Ugandan birds with AI
         </div>
         <div>
-            Made with <span style="color:#f87171;">heart</span> by <a href="https://x.com/yourhandle" target="_blank">@yourhandle</a>
+            <span style="color:#f87171;">Developed by</span> by <a>zziwamarkalex</a> <a>kasozidavid</a> <a>namuzibwalaurinda</a>
         </div>
         <div>
             <a href="#">Privacy</a> • <a href="#">Terms</a> • <a href="#">About</a>
@@ -679,4 +626,3 @@ with st.container():
         </div>
         </div>
         """, unsafe_allow_html=True)
-    # (no wrapper divs to close)
