@@ -174,7 +174,7 @@ def load_model():
     """Load the ResNet34 model with trained weights"""
     try:
         model = models.resnet34(weights=None)
-        num_classes = 30  # Based on label_map.json having 30 classes
+        num_classes = 220  # Based on label_map.json having 30 classes
         model.fc = nn.Linear(model.fc.in_features, num_classes)
         
         # Load weights
