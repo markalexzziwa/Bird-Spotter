@@ -460,7 +460,7 @@ with st.container():
                 del st.session_state.upload_result
             
             image = Image.open(uploaded_file)
-            st.image(image, caption='Uploaded Image', use_container_width=True)
+            st.image(image, caption='Uploaded Image', width='stretch')
             
             if st.button("Identify Specie", key="identify_specie_upload_button"):
                 if model is not None and label_map is not None:
@@ -573,7 +573,7 @@ with st.container():
                     del st.session_state.camera_result
                 
                 image = Image.open(camera_photo)
-                st.image(image, caption='Captured Photo', use_container_width=True)
+                st.image(image, caption='Captured Photo', width='stretch')
                 
                 if st.button("Identify Specie", key="identify_specie_camera_button"):
                     if model is not None and label_map is not None:
