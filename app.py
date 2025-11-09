@@ -1,3 +1,5 @@
+# main page
+# imports
 import streamlit as st
 from PIL import Image
 import base64
@@ -11,38 +13,25 @@ from gtts import gTTS
 from moviepy.editor import ImageClip, AudioFileClip, concatenate_videoclips, TextClip, CompositeVideoClip
 import tempfile
 import random
-
-#123
-# app.py
-import streamlit as st
-import torch
-import os
 import base64
 import tempfile
 import shutil
 from pathlib import Path
 from io import BytesIO
 from PIL import Image
-
 from moviepy.editor import (
     AudioFileClip, ImageClip, concatenate_videoclips, concatenate_audioclips
 )
 from moviepy.audio.fx.all import audio_fadein, audio_fadeout
 from moviepy.video.fx.all import resize
 from moviepy.config import change_settings
-
-# Fix ImageMagick
 os.environ["IMAGEMAGICK_BINARY"] = "/usr/bin/convert"
 change_settings({"IMAGEMAGICK_BINARY": "/usr/bin/convert"})
 from PIL import Image
-
-# Restore ANTIALIAS for backward compatibility
 if not hasattr(Image, 'ANTIALIAS'):
     Image.ANTIALIAS = Image.LANCZOS
 
-# ─────────────────────────────────────────────────────────────────────────────
-# STORY TEMPLATES
-# ─────────────────────────────────────────────────────────────────────────────
+# templates for making stories
 TEMPLATES = [
     "Deep in Uganda's lush forests, the {name} flashes its {color_phrase} feathers. {desc} It dances on branches at dawn, a true jewel of the Pearl of Africa.",
     "Along the Nile's banks, the {name} stands tall with {color_phrase} plumage. {desc} Fishermen smile when they hear its melodic call at sunrise.",
@@ -56,9 +45,7 @@ TEMPLATES = [
     "By the shores of Lake Mburo, the {name} reflects in calm waters. {desc} Its {color_phrase} feathers mirror the peace of the savanna night."
 ]
 
-# ─────────────────────────────────────────────────────────────────────────────
-# LOAD BIRD DATA (safe)
-# ─────────────────────────────────────────────────────────────────────────────
+# loading bird data
 @st.cache_resource
 def load_bird_data():
     pth_path = "bird_data.pth"
@@ -69,14 +56,12 @@ def load_bird_data():
 
 bird_db = load_bird_data()
 
-# ─────────────────────────────────────────────────────────────────────────────
-# STORY GENERATOR
-# ─────────────────────────────────────────────────────────────────────────────
+# building a story
 def generate_story(name, desc, colors):
     import random
     color_phrase = ", ".join(colors) if colors else "vibrant"
     desc = desc.strip().capitalize() if desc else "A fascinating bird with unique habits."
-    tmpl = random.choice(TEMPLATES)
+    tmpl = random.choice(TEMPLATES) #random template
     return tmpl.format(name=name, color_phrase=color_phrase, desc=desc)
 
 # ─────────────────────────────────────────────────────────────────────────────
