@@ -618,7 +618,7 @@ with st.container():
             Bird Scan — Identify Ugandan birds with AI
         </div>
         <div>
-            <span style="color:#f87171;">Developed by</span><div><i>Kasozi David</i>        <i>Namuzibwa Laurinda</i>        <i>Zziwa Mark Alex</i></div>
+            <span style="color:#f87171;">Developed by</span><div><i>&bull;Kasozi David</i><i>  &bull;Namuzibwa Laurinda</i><i>  &bull;Zziwa Mark Alex</i></div>
         </div>
         </div>
         </div>
