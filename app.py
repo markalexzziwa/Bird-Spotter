@@ -385,7 +385,7 @@ try:
                 unsafe_allow_html=True,
             )
             st.markdown(
-                "<div class='hero-badges'><span class='badge'>Smart Vision</span><span class='badge'>On-device Capture</span><span class='badge'>UG Species Focus</span></div>",
+                "<div class='hero-badges'><span class='badge'>Identify</span><span class='badge'>Visualize</span><span class='badge'>Learn</span></div>",
                 unsafe_allow_html=True,
             )
         st.markdown("</div>", unsafe_allow_html=True)
