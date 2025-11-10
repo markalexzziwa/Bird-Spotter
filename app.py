@@ -480,124 +480,106 @@ with st.container():
     with tab_camera:
         if 'camera_active' not in st.session_state:
             st.session_state.camera_active = False
-        if 'zoom_level' not in st.session_state:
-            st.session_state.zoom_level = 1
 
-    st.markdown("<h4>Take Picture</h4>", unsafe_allow_html=True)
-
-    if not st.session_state.camera_active:
-        try:
-            _placeholder_path = "ub2.png"
-            if os.path.exists(_placeholder_path):
-                with open(_placeholder_path, "rb") as _f:
-                    _data = _f.read()
-                _b64 = base64.b64encode(_data).decode()
-                _img_html = (
-                    f"<img src=\"data:image/png;base64,{_b64}\" "
-                    "style=\"width:100%; aspect-ratio:4/3; min-height:280px; object-fit:cover; "
-                    "border-radius:12px; margin-bottom:0.75rem; box-shadow: inset 0 0 40px rgba(0,0,0,0.6);\"/>")
-                st.markdown(_img_html, unsafe_allow_html=True)
-            else:
+        st.markdown("<h4>📷 Take Picture</h4>", unsafe_allow_html=True)
+        if not st.session_state.camera_active:
+            try:
+                _placeholder_path = "ub2.png"
+                if os.path.exists(_placeholder_path):
+                    with open(_placeholder_path, "rb") as _f:
+                        _data = _f.read()
+                    _b64 = base64.b64encode(_data).decode()
+                    _img_html = (
+                        f"<img src=\"data:image/png;base64,{_b64}\" "
+                        "style=\"width:100%; aspect-ratio:4/3; min-height:280px; object-fit:cover; "
+                        "border-radius:12px; margin-bottom:0.75rem; box-shadow: inset 0 0 40px rgba(0,0,0,0.6);\"/>")
+                    st.markdown(_img_html, unsafe_allow_html=True)
+                else:
+                    st.markdown(
+                        "<div style='width:100%; aspect-ratio:4/3; min-height:280px; background:linear-gradient(180deg,#0b1220,#0b1220 60%, #0f172a); border-radius:12px; margin-bottom:0.75rem; box-shadow: inset 0 0 40px rgba(0,0,0,0.6);'></div>",
+                        unsafe_allow_html=True,
+                    )
+            except Exception:
                 st.markdown(
                     "<div style='width:100%; aspect-ratio:4/3; min-height:280px; background:linear-gradient(180deg,#0b1220,#0b1220 60%, #0f172a); border-radius:12px; margin-bottom:0.75rem; box-shadow: inset 0 0 40px rgba(0,0,0,0.6);'></div>",
                     unsafe_allow_html=True,
                 )
-        except Exception:
-            st.markdown(
-                "<div style='width:100%; aspect-ratio:4/3; min-height:280px; background:linear-gradient(180deg,#0b1220,#0b1220 60%, #0f172a); border-radius:12px; margin-bottom:0.75rem; box-shadow: inset 0 0 40px rgba(0,0,0,0.6);'></div>",
-                unsafe_allow_html=True,
-            )
 
-        def _start_camera():
-            st.session_state.camera_active = True
-            st.session_state.zoom_level = 1
+            def _start_camera():
+                st.session_state.camera_active = True
 
-        st.button("Start Camera", key="use_camera_button", on_click=_start_camera)
+            st.button("Start Camera 📷", key="use_camera_button", on_click=_start_camera)
 
-    if st.session_state.camera_active:
-        camera_photo = st.camera_input(
-            "Take a photo",
-            key="camera_input",
-            label_visibility="collapsed"
-        )
-
-        if camera_photo is not None:
-            if 'camera_result' in st.session_state:
-                del st.session_state.camera_result
-
-            image = Image.open(camera_photo)
-            st.session_state.camera_image = image
-
-            display_image = image.copy()
-            if st.session_state.zoom_level > 1:
-                scale = st.session_state.zoom_level
-                new_size = (int(image.width * scale), int(image.height * scale))
-                display_image = image.resize(new_size, Image.Resampling.LANCZOS)
-
-            st.image(display_image, use_column_width=True)
-
-            if st.button("Identify Specie", key="identify_specie_camera_button"):
-                if model is not None and label_map is not None:
-                    with st.spinner("Analyzing image..."):
-                        result = predict_species(model, label_map, image)
-                    if result:
-                        st.session_state.camera_result = result
+        if st.session_state.camera_active:
+            camera_photo = st.camera_input("Take a photo", key="camera_input")
+            if camera_photo is not None:
+                if 'camera_result' in st.session_state:
+                    del st.session_state.camera_result
+                
+                image = Image.open(camera_photo)
+                st.image(image, caption='Captured Photo', width='stretch')
+                
+                if st.button("Identify Specie", key="identify_specie_camera_button"):
+                    if model is not None and label_map is not None:
+                        with st.spinner("🔍 Analyzing image..."):
+                            result = predict_species(model, label_map, image)
+                        
+                        if result:
+                            st.session_state.camera_result = result
+                            st.session_state.camera_image = image
+                        else:
+                            st.error("Failed to predict species. Please try again.")
                     else:
-                        st.error("Failed to predict species. Please try again.")
-                else:
-                    st.error("Model or label map not loaded.")
+                        st.error("Model or label map not loaded. Please check if the files exist.")
+                
+                if 'camera_result' in st.session_state and st.session_state.camera_result:
+                    result = st.session_state.camera_result
+                    st.markdown("<div class='result-title'>🦅 Identification Result</div>", unsafe_allow_html=True)
+                    st.markdown(f"""
+                    <div class='result-item'>
+                        <div class='result-species'>{result['species']}</div>
+                        <div class='result-confidence'>Confidence: {result['confidence']:.3f}%</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                                
+                bird_name = st.text_input("Know more about the predicted specie. Write the specie name to Generate video", placeholder="e.g. African Jacana").strip().title()
+            
 
-            if 'camera_result' in st.session_state and st.session_state.camera_result:
-                result = st.session_state.camera_result
-                st.markdown("<div class='result-title'>Identification Result</div>", unsafe_allow_html=True)
-                st.markdown(f"""
-                <div class='result-item'>
-                    <div class='result-species'>{result['species']}</div>
-                    <div class='result-confidence'>Confidence: {result['confidence']:.3f}%</div>
-                </div>
-                """, unsafe_allow_html=True)
+                if bird_name:
+                    if bird_name not in bird_db:
+                        st.error(f"**{bird_name}** not found.")
+                    else:
+                        if st.button("Generate Video", type="primary"):
+                            with st.spinner("Generating..."):
+                                data = bird_db[bird_name]
+                                story = generate_story(bird_name, data["desc"], data["colors"])
+                                tmp = tempfile.mkdtemp()
+                                img_paths = []
+                                for i, b64 in enumerate(data["images_b64"]):
+                                    img_data = base64.b64decode(b64)
+                                    img = Image.open(BytesIO(img_data))
+                                    p = os.path.join(tmp, f"img_{i}.jpg")
+                                    img.save(p, "JPEG")
+                                    img_paths.append(p)
+                                audio_path = os.path.join(tmp, "voice.mp3")
+                                natural_tts(story, audio_path)
+                                out_path = os.path.join(tmp, f"{bird_name.replace(' ', '_')}.mp4")
+                                create_video(img_paths, audio_path, out_path)
+                                st.video(out_path)
+                                with open(out_path, "rb") as f:
+                                    st.download_button("Download Video", f, f"{bird_name}.mp4", "video/mp4")
 
-            bird_name = st.text_input(
-                "Know more about the predicted specie. Write the specie name to Generate video",
-                placeholder="e.g. African Jacana"
-            ).strip().title()
+                                shutil.rmtree(tmp, ignore_errors=True)
+                                st.success("Done!")
+                with st.expander("Available birds"):
+                    st.write(", ".join(sorted(bird_db.keys())))                
 
-            if bird_name:
-                if bird_name not in bird_db:
-                    st.error(f"**{bird_name}** not found.")
-                else:
-                    if st.button("Generate Video", type="primary"):
-                        with st.spinner("Generating..."):
-                            data = bird_db[bird_name]
-                            story = generate_story(bird_name, data["desc"], data["colors"])
-                            tmp = tempfile.mkdtemp()
-                            img_paths = []
-                            for i, b64 in enumerate(data["images_b64"]):
-                                img_data = base64.b64decode(b64)
-                                img = Image.open(BytesIO(img_data))
-                                p = os.path.join(tmp, f"img_{i}.jpg")
-                                img.save(p, "JPEG")
-                                img_paths.append(p)
-                            audio_path = os.path.join(tmp, "voice.mp3")
-                            natural_tts(story, audio_path)
-                            out_path = os.path.join(tmp, f"{bird_name.replace(' ', '_')}.mp4")
-                            create_video(img_paths, audio_path, out_path)
-                            st.video(out_path)
-                            with open(out_path, "rb") as f:
-                                st.download_button("Download Video", f, f"{bird_name}.mp4", "video/mp4")
-                            shutil.rmtree(tmp, ignore_errors=True)
-                            st.success("Done!")
+                    
+                    
+            if st.button("Stop Camera ⏹️", key="stop_camera_button", help="Click to stop camera preview"):
+                st.session_state.camera_active = False
+        st.markdown("</div>", unsafe_allow_html=True)
 
-            with st.expander("Available birds"):
-                st.write(", ".join(sorted(bird_db.keys())))
-
-        if st.button("Stop Camera", key="stop_camera_button"):
-            st.session_state.camera_active = False
-            for key in ['camera_image', 'camera_result', 'zoom_level']:
-                if key in st.session_state:
-                    del st.session_state[key]
-
-    st.markdown("</div>", unsafe_allow_html=True)
     st.markdown(
         """
         <div style='text-align:center; color:#334155; margin-top: 1rem; font-size:.9rem;'>
