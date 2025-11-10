@@ -515,34 +515,11 @@ with st.container():
         st.button("Start Camera", key="use_camera_button", on_click=_start_camera)
 
     if st.session_state.camera_active:
-        zoom_options = [1, 2, 4, 8, 10]
-        zoom_labels = [f"x{int(z)}" if z > 1 else "Original" for z in zoom_options]
-        selected_idx = st.selectbox(
-            "Zoom",
-            options=range(len(zoom_options)),
-            format_func=lambda i: zoom_labels[i],
-            index=zoom_options.index(st.session_state.zoom_level),
-            key="live_zoom_selector"
+        camera_photo = st.camera_input(
+            "Take a photo",
+            key="camera_input",
+            label_visibility="collapsed"
         )
-        st.session_state.zoom_level = zoom_options[selected_idx]
-
-        zoom_js = f"""
-        <script>
-        const video = parent.document.querySelector('video');
-        if (video) {{
-            video.style.transform = 'scale({st.session_state.zoom_level})';
-            video.style.transformOrigin = 'center';
-            video.style.transition = 'transform 0.2s ease';
-            const container = video.closest('div[data-testid="stVerticalBlock"]') || video.parentElement;
-            if (container) {{
-                container.style.overflow = 'visible';
-            }}
-        }}
-        </script>
-        """
-        st.markdown(zoom_js, unsafe_allow_html=True)
-
-        camera_photo = st.camera_input("Take a photo", key="camera_input")
 
         if camera_photo is not None:
             if 'camera_result' in st.session_state:
