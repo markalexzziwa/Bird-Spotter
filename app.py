@@ -614,12 +614,7 @@ with st.container():
 
         <div class="footer">
         <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-        <div>
-            Bird Scan — Identify Ugandan birds with AI
-        </div>
-        <div>
             <span style="color:#f87171;">Developed by</span><div><i>&bull;Kasozi David</i><i>&nbsp;&nbsp;&bull;Namuzibwa Laurinda</i><i>&nbsp;&nbsp;&bull;Zziwa Mark Alex</i></div>
-        </div>
         </div>
         </div>
         """, unsafe_allow_html=True)
