@@ -478,12 +478,12 @@ with st.container():
             
 
     with tab_camera:
-        if 'camera_active' not in st.session_state:
-            st.session_state.camera_active = False
-        if 'zoom_level' not in st.session_state:
-            st.session_state.zoom_level = 1
+    if 'camera_active' not in st.session_state:
+        st.session_state.camera_active = False
+    if 'zoom_level' not in st.session_state:
+        st.session_state.zoom_level = 1
 
-        st.markdown("<h4>Take Picture</h4>", unsafe_allow_html=True)
+    st.markdown("<h4>Take Picture</h4>", unsafe_allow_html=True)
 
     if not st.session_state.camera_active:
         try:
@@ -515,7 +515,26 @@ with st.container():
         st.button("Start Camera", key="use_camera_button", on_click=_start_camera)
 
     if st.session_state.camera_active:
-        camera_photo = st.camera_input("Take a photo", key="camera_input")
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            st.write("")
+        with col2:
+            zoom_options = [1, 2, 4, 8, 10]
+            zoom_labels = [f"x{int(z)}" if z > 1 else "Original" for z in zoom_options]
+            selected_idx = st.selectbox(
+                "Zoom",
+                options=range(len(zoom_options)),
+                format_func=lambda i: zoom_labels[i],
+                index=zoom_options.index(st.session_state.zoom_level),
+                key="live_zoom_selector"
+            )
+            st.session_state.zoom_level = zoom_options[selected_idx]
+
+        camera_photo = st.camera_input(
+            "Take a photo",
+            key="camera_input",
+            help=f"Current zoom: x{st.session_state.zoom_level}"
+        )
 
         if camera_photo is not None:
             if 'camera_result' in st.session_state:
@@ -523,21 +542,6 @@ with st.container():
 
             image = Image.open(camera_photo)
             st.session_state.camera_image = image
-
-            col1, col2 = st.columns([3, 1])
-            with col1:
-                st.markdown("**Captured Photo**")
-            with col2:
-                zoom_options = [1, 2, 4, 8, 10]
-                zoom_labels = [f"x{int(z)}" if z > 1 else "Original" for z in zoom_options]
-                selected_idx = st.selectbox(
-                    "Zoom",
-                    options=range(len(zoom_options)),
-                    format_func=lambda i: zoom_labels[i],
-                    index=zoom_options.index(st.session_state.zoom_level),
-                    key="zoom_selector"
-                )
-                st.session_state.zoom_level = zoom_options[selected_idx]
 
             display_image = image.copy()
             if st.session_state.zoom_level > 1:
