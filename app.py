@@ -543,7 +543,11 @@ with st.container():
                     """, unsafe_allow_html=True)
                 
                 
-                bird_name = st.text_input("Know more about the predicted specie. Write the specie name to Generate video", placeholder="e.g. African Jacana").strip().title()
+                bird_name = st.text_input(
+                    "Know more about the predicted specie. Write the specie name to Generate video",
+                    placeholder="e.g. African Jacana"
+                    key="bird_name_input_camera"
+                    ).strip().title()
                 
                 
                 if bird_name:
