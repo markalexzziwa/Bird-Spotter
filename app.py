@@ -541,9 +541,11 @@ with st.container():
                         <div class='result-confidence'>Confidence: {result['confidence']:.3f}%</div>
                     </div>
                     """, unsafe_allow_html=True)
-                    bird_name = st.text_input("Know more about the predicted specie. Write the specie name to Generate video", placeholder="e.g. African Jacana").strip().title()
-            
-
+                
+                
+                bird_name = st.text_input("Know more about the predicted specie. Write the specie name to Generate video", placeholder="e.g. African Jacana").strip().title()
+                
+                
                 if bird_name:
                     if bird_name not in bird_db:
                         st.error(f"**{bird_name}** not found.")
