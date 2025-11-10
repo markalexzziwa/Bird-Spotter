@@ -379,7 +379,7 @@ try:
         with logo_col:
             st.image(_logo_small, use_column_width=False)
         with text_col:
-            st.markdown("<div class='hero-title'>Birds in Uganda</div>", unsafe_allow_html=True)
+            st.markdown("<div class='hero-title'>Bird Spotter</div>", unsafe_allow_html=True)
             st.markdown(
                 "<div class='hero-sub'>Identify birds from photos in seconds. Upload an image or use your camera to discover species, with a beautiful, distraction-free interface.</div>",
                 unsafe_allow_html=True,
