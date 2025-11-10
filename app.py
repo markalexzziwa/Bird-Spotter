@@ -478,12 +478,12 @@ with st.container():
             
 
     with tab_camera:
-    if 'camera_active' not in st.session_state:
-        st.session_state.camera_active = False
-    if 'zoom_level' not in st.session_state:
-        st.session_state.zoom_level = 1
+        if 'camera_active' not in st.session_state:
+            st.session_state.camera_active = False
+        if 'zoom_level' not in st.session_state:
+            st.session_state.zoom_level = 1
 
-    st.markdown("<h4>Take Picture</h4>", unsafe_allow_html=True)
+        st.markdown("<h4>Take Picture</h4>", unsafe_allow_html=True)
 
     if not st.session_state.camera_active:
         try:
